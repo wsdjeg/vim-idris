@@ -236,11 +236,11 @@ function! idris#responseWin()
         badd idris-response
         b idris-response
         set buftype=nofile
-        wincmd k
+        wincmd p
     else
         botright 10split
         b idris-response
-        wincmd k
+        wincmd p
     endif
 endfunction
 
