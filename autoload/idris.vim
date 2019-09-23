@@ -1,3 +1,20 @@
+function! s:IdrisCommand(...)
+    let idriscmd = shellescape(join(a:000))
+    return system("idris --client " . idriscmd)
+endfunction
+
+" Text near cursor position that needs to be passed to a command.
+" Refinment of `expand(<cword>)` to accomodate differences between
+" a (n)vim word and what Idris requires.
+function! s:currentQueryObject()
+    let word = expand("<cword>")
+    if word =~ '^?'
+        " Cut off '?' that introduces a hole identifier.
+        let word = strpart(word, 1)
+    endif
+    return word
+endfunction
+
 function! idris#Reload(p)
     w
     let file = expand("%:p")
@@ -31,3 +48,15 @@ function! idris#addMissing()
         endif
     endif
 endfunction
+
+function! idris#docFold(lineNum)
+    let line = getline(a:lineNum)
+
+    if line =~ "^\s*|||"
+        return "1"
+    endif
+
+    return "0"
+endfunction
+
+

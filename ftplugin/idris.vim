@@ -16,35 +16,9 @@ setlocal wildignore+=*.ibc
 let idris_response = 0
 let b:did_ftplugin = 1
 
-" Text near cursor position that needs to be passed to a command.
-" Refinment of `expand(<cword>)` to accomodate differences between
-" a (n)vim word and what Idris requires.
-function! s:currentQueryObject()
-    let word = expand("<cword>")
-    if word =~ '^?'
-        " Cut off '?' that introduces a hole identifier.
-        let word = strpart(word, 1)
-    endif
-    return word
-endfunction
-
-function! s:IdrisCommand(...)
-    let idriscmd = shellescape(join(a:000))
-    return system("idris --client " . idriscmd)
-endfunction
-
-function! IdrisDocFold(lineNum)
-    let line = getline(a:lineNum)
-
-    if line =~ "^\s*|||"
-        return "1"
-    endif
-
-    return "0"
-endfunction
 
 function! IdrisFold(lineNum)
-    return IdrisDocFold(a:lineNum)
+    return idris#docFold(a:lineNum)
 endfunction
 
 setlocal foldmethod=expr
