@@ -15,7 +15,7 @@ function! s:currentQueryObject()
     return word
 endfunction
 
-function! idris#Reload(p)
+function! idris#reload(p)
     w
     let file = expand("%:p")
     let tc = s:IdrisCommand(":l", file)
@@ -60,3 +60,40 @@ function! idris#docFold(lineNum)
 endfunction
 
 
+function! idris#showType()
+    w
+    let word = s:currentQueryObject()
+    let cline = line(".")
+    let tc = idris#reloadToLine(cline)
+    if (! (tc is ""))
+        echo tc
+    else
+        let ty = s:IdrisCommand(":t", word)
+        call IWrite(ty)
+    endif
+    return tc
+endfunction
+
+function! idris#proofSearch(hint)
+    let view = winsaveview()
+    w
+    let cline = line(".")
+    let word = s:currentQueryObject()
+    let tc = idris#reload(1)
+
+    if (a:hint==0)
+        let hints = ""
+    else
+        let hints = input ("Hints: ")
+    endif
+
+    if (tc is "")
+        let result = s:IdrisCommand(":ps!", cline, word, hints)
+        if (! (result is ""))
+            call IWrite(result)
+        else
+            e
+            call winrestview(view)
+        endif
+    endif
+endfunction

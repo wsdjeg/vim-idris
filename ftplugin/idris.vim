@@ -58,21 +58,6 @@ function! IWrite(str)
     endif
 endfunction
 
-function! IdrisReload(q)
-    w
-    let file = expand("%:p")
-    let tc = s:IdrisCommand(":l", file)
-    if (! (tc is ""))
-        call IWrite(tc)
-    else
-        if (a:q==0)
-            echo "Successfully reloaded " . file
-            call IWrite("")
-        endif
-    endif
-    return tc
-endfunction
-
 function! IdrisReloadToLine(cline)
     return IdrisReload(1)
     "w
@@ -84,26 +69,6 @@ function! IdrisReloadToLine(cline)
     "return tc
 endfunction
 
-function! IdrisShowType()
-    w
-    let word = s:currentQueryObject()
-    let cline = line(".")
-    let tc = IdrisReloadToLine(cline)
-    if (! (tc is ""))
-        echo tc
-    else
-        let ty = s:IdrisCommand(":t", word)
-        call IWrite(ty)
-    endif
-    return tc
-endfunction
-
-function! IdrisShowDoc()
-    w
-    let word = expand("<cword>")
-    let ty = s:IdrisCommand(":doc", word)
-    call IWrite(ty)
-endfunction
 
 function! IdrisProofSearch(hint)
     let view = winsaveview()
