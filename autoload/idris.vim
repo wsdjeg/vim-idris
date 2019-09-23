@@ -1,6 +1,6 @@
 let s:BUFFER = SpaceVim#api#import('vim#buffer')
 
-function! s:IdrisCommand(...)
+function! s:idrisCommand(...)
     let idriscmd = shellescape(join(a:000))
     return system("idris --client " . idriscmd)
 endfunction
@@ -20,13 +20,13 @@ endfunction
 function! idris#reload(p)
     w
     let file = expand("%:p")
-    let tc = s:IdrisCommand(":l", file)
+    let tc = s:idrisCommand(":l", file)
     if (! (tc is ""))
-        call IWrite(tc)
+        call idris#write(tc)
     else
         if (a:q==0)
             echo "Successfully reloaded " . file
-            call IWrite("")
+            call idris#write("")
         endif
     endif
     return tc
@@ -38,12 +38,12 @@ function! idris#addMissing()
     w
     let cline = line(".")
     let word = expand("<cword>")
-    let tc = IdrisReload(1)
+    let tc = idris#reload(1)
 
     if (tc is "")
-        let result = s:IdrisCommand(":am!", cline, word)
+        let result = s:idrisCommand(":am!", cline, word)
         if (! (result is ""))
-            call IWrite(result)
+            call idris#write(result)
         else
             e
             call winrestview(view)
@@ -70,8 +70,8 @@ function! idris#showType()
     if (! (tc is ""))
         echo tc
     else
-        let ty = s:IdrisCommand(":t", word)
-        call IWrite(ty)
+        let ty = s:idrisCommand(":t", word)
+        call idris#write(ty)
     endif
     return tc
 endfunction
@@ -90,9 +90,9 @@ function! idris#proofSearch(hint)
     endif
 
     if (tc is "")
-        let result = s:IdrisCommand(":ps!", cline, word, hints)
+        let result = s:idrisCommand(":ps!", cline, word, hints)
         if (! (result is ""))
-            call IWrite(result)
+            call idris#write(result)
         else
             e
             call winrestview(view)
@@ -110,9 +110,9 @@ function! idris#refine()
     let name = input ("Name: ")
 
     if (tc is "")
-        let result = s:IdrisCommand(":ref!", cline, word, name)
+        let result = s:idrisCommand(":ref!", cline, word, name)
         if (! (result is ""))
-            call IWrite(result)
+            call idris#write(result)
         else
             e
             call winrestview(view)
@@ -120,34 +120,16 @@ function! idris#refine()
     endif
 endfunction
 
-function! IdrisAddMissing()
-    let view = winsaveview()
-    w
-    let cline = line(".")
-    let word = expand("<cword>")
-    let tc = IdrisReload(1)
-
-    if (tc is "")
-        let result = s:IdrisCommand(":am!", cline, word)
-        if (! (result is ""))
-            call IWrite(result)
-        else
-            e
-            call winrestview(view)
-        endif
-    endif
-endfunction
-
-function! IdrisCaseSplit()
+function! idris#caseSplit()
     let view = winsaveview()
     let cline = line(".")
     let word = expand("<cword>")
-    let tc = IdrisReloadToLine(cline)
+    let tc = idris#reloadToLine(cline)
 
     if (tc is "")
-        let result = s:IdrisCommand(":cs!", cline, word)
+        let result = s:idrisCommand(":cs!", cline, word)
         if (! (result is ""))
-            call IWrite(result)
+            call idris#write(result)
         else
             e
             call winrestview(view)
@@ -155,17 +137,17 @@ function! IdrisCaseSplit()
     endif
 endfunction
 
-function! IdrisMakeWith()
+function! idris#makeWith()
     let view = winsaveview()
     w
     let cline = line(".")
     let word = s:currentQueryObject()
-    let tc = IdrisReload(1)
+    let tc = idris#reload(1)
 
     if (tc is "")
-        let result = s:IdrisCommand(":mw!", cline, word)
+        let result = s:idrisCommand(":mw!", cline, word)
         if (! (result is ""))
-            call IWrite(result)
+            call idris#write(result)
         else
             e
             call winrestview(view)
@@ -174,17 +156,17 @@ function! IdrisMakeWith()
     endif
 endfunction
 
-function! IdrisMakeCase()
+function! idris#makeCase()
     let view = winsaveview()
     w
     let cline = line(".")
     let word = s:currentQueryObject()
-    let tc = IdrisReload(1)
+    let tc = idris#reload(1)
 
     if (tc is "")
-        let result = s:IdrisCommand(":mc!", cline, word)
+        let result = s:idrisCommand(":mc!", cline, word)
         if (! (result is ""))
-            call IWrite(result)
+            call idris#write(result)
         else
             e
             call winrestview(view)
@@ -193,12 +175,12 @@ function! IdrisMakeCase()
     endif
 endfunction
 
-function! IdrisAddClause(proof)
+function! idris#addClause(proof)
     let view = winsaveview()
     w
     let cline = line(".")
     let word = expand("<cword>")
-    let tc = IdrisReloadToLine(cline)
+    let tc = idris#reloadToLine(cline)
 
     if (tc is "")
         if (a:proof==0)
@@ -207,9 +189,9 @@ function! IdrisAddClause(proof)
             let fn = ":apc!"
         endif
 
-        let result = s:IdrisCommand(fn, cline, word)
+        let result = s:idrisCommand(fn, cline, word)
         if (! (result is ""))
-            call IWrite(result)
+            call idris#write(result)
         else
             e
             call winrestview(view)
@@ -219,26 +201,27 @@ function! IdrisAddClause(proof)
     endif
 endfunction
 
-function! IdrisEval()
+function! idris#eval()
     w
-    let tc = IdrisReload(1)
+    let tc = idris#reload(1)
     if (tc is "")
         let expr = input ("Expression: ")
-        let result = s:IdrisCommand(expr)
-        call IWrite(" = " . result)
+        let result = s:idrisCommand(expr)
+        call idris#write(" = " . result)
     endif
 endfunction
-function! IdrisMakeLemma()
+
+function! idris#makeLemma()
     let view = winsaveview()
     w
     let cline = line(".")
     let word = s:currentQueryObject()
-    let tc = IdrisReload(1)
+    let tc = idris#reload(1)
 
     if (tc is "")
-        let result = s:IdrisCommand(":ml!", cline, word)
+        let result = s:idrisCommand(":ml!", cline, word)
         if (! (result is ""))
-            call IWrite(result)
+            call idris#write(result)
         else
             e
             call winrestview(view)
@@ -247,31 +230,21 @@ function! IdrisMakeLemma()
     endif
 endfunction
 
-function! IdrisResponseWin()
-    if (!bufexists("idris-response"))
+function! idris#responseWin()
+    if !bufexists("idris-response")
         botright 10split
         badd idris-response
         b idris-response
-        let g:idris_respwin = "active"
         set buftype=nofile
         wincmd k
-    elseif (bufexists("idris-response") && g:idris_respwin == "hidden")
+    else
         botright 10split
         b idris-response
-        let g:idris_respwin = "active"
         wincmd k
     endif
 endfunction
 
-function! IdrisHideResponseWin()
-    let g:idris_respwin = "hidden"
-endfunction
-
-function! IdrisShowResponseWin()
-    let g:idris_respwin = "active"
-endfunction
-
-function! IWrite(str)
+function! idris#write(str)
     if (bufexists("idris-response"))
         let bufnr = bufnr("idris-response")
         let lines = split(a:str, '\n')
@@ -281,13 +254,13 @@ function! IWrite(str)
     endif
 endfunction
 
-function! IdrisReloadToLine(cline)
-    return IdrisReload(1)
+function! idris#reloadToLine(cline)
+    return idris#reload(1)
     "w
     "let file = expand("%:p")
-    "let tc = s:IdrisCommand(":lto", a:cline, file)
+    "let tc = s:idrisCommand(":lto", a:cline, file)
     "if (! (tc is ""))
-    "  call IWrite(tc)
+    "  call idris#write(tc)
     "endif
     "return tc
 endfunction
