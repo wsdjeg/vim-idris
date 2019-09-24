@@ -285,4 +285,10 @@ function! idris#startRepl()
         \ })
 endfunction
 
+function! idris#showDoc()
+  silent! w
+  let word = expand("<cword>")
+  let ty = s:idrisCommand(":doc", word)
+  call idris#write(ty)
+endfunction
 
