@@ -1,4 +1,5 @@
 let s:BUFFER = SpaceVim#api#import('vim#buffer')
+let s:JOB = SpaceVim#api#import('job')
 
 function! s:idrisCommand(...)
     let idriscmd = shellescape(join(a:000))
@@ -272,5 +273,16 @@ function! idris#reloadToLine(cline)
 endfunction
 
 
+function! s:stdout(id, data, event) abort
+    
+endfunction
+
+function! idris#startRepl()
+    return s:JOB.start('idris --nobanner', {
+        \ 'on_stdout' : function('s:stdout'),
+        \ 'on_stderr' : function('s:stdout'),
+        \ 'on_exit' : function('s:stdout'),
+        \ })
+endfunction
 
 

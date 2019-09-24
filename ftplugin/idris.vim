@@ -16,5 +16,6 @@ setlocal iskeyword+=?
 setlocal wildignore+=*.ibc
 setlocal foldmethod=expr
 setlocal foldexpr=IdrisFold(v:lnum)
+call idris#startRepl()
 
 let b:did_ftplugin = 1
