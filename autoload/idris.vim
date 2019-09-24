@@ -17,8 +17,8 @@ function! s:currentQueryObject()
     return word
 endfunction
 
-function! idris#reload(p)
-    w
+function! idris#reload(q)
+    silent! w
     let file = expand("%:p")
     let tc = s:idrisCommand(":l", file)
     if (! (tc is ""))
@@ -35,7 +35,7 @@ endfunction
 
 function! idris#addMissing()
     let view = winsaveview()
-    w
+    silent! w
     let cline = line(".")
     let word = expand("<cword>")
     let tc = idris#reload(1)
@@ -62,13 +62,19 @@ function! idris#docFold(lineNum)
 endfunction
 
 
+function! s:remove_empty_line(str) abort
+    let strs = map(split(a:str, "\n"), '!empty(v:val)')
+    return join(strs, "\n")
+endfunction
+
 function! idris#showType()
-    w
+    silent! w
     let word = s:currentQueryObject()
     let cline = line(".")
     let tc = idris#reloadToLine(cline)
-    if (! (tc is ""))
-        echo tc
+    normal! :
+    if !empty(tc)
+        echo s:remove_empty_line(tc)
     else
         let ty = s:idrisCommand(":t", word)
         call idris#write(ty)
@@ -78,7 +84,7 @@ endfunction
 
 function! idris#proofSearch(hint)
     let view = winsaveview()
-    w
+    silent! w
     let cline = line(".")
     let word = s:currentQueryObject()
     let tc = idris#reload(1)
@@ -102,7 +108,7 @@ endfunction
 
 function! idris#refine()
     let view = winsaveview()
-    w
+    silent! w
     let cline = line(".")
     let word = expand("<cword>")
     let tc = idris#reload(1)
@@ -139,7 +145,7 @@ endfunction
 
 function! idris#makeWith()
     let view = winsaveview()
-    w
+    silent! w
     let cline = line(".")
     let word = s:currentQueryObject()
     let tc = idris#reload(1)
@@ -158,7 +164,7 @@ endfunction
 
 function! idris#makeCase()
     let view = winsaveview()
-    w
+    silent! w
     let cline = line(".")
     let word = s:currentQueryObject()
     let tc = idris#reload(1)
@@ -177,7 +183,7 @@ endfunction
 
 function! idris#addClause(proof)
     let view = winsaveview()
-    w
+    silent! w
     let cline = line(".")
     let word = expand("<cword>")
     let tc = idris#reloadToLine(cline)
@@ -202,7 +208,7 @@ function! idris#addClause(proof)
 endfunction
 
 function! idris#eval()
-    w
+    silent! w
     let tc = idris#reload(1)
     if (tc is "")
         let expr = input ("Expression: ")
@@ -213,7 +219,7 @@ endfunction
 
 function! idris#makeLemma()
     let view = winsaveview()
-    w
+    silent! w
     let cline = line(".")
     let word = s:currentQueryObject()
     let tc = idris#reload(1)
